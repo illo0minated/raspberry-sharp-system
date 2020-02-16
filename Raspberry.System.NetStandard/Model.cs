@@ -55,7 +55,12 @@ namespace Raspberry.System.NetStandard
         /// <summary>
         /// Pi 3 Model B.
         /// </summary>
-        B3
+        B3,
+
+        /// <summary>
+        /// Pi 3 Model B Rev 1.3
+        /// </summary>
+        B3rev13
     }
 
     /// <summary>
@@ -92,6 +97,8 @@ namespace Raspberry.System.NetStandard
                     return "Raspberry Pi Zero";
                 case Model.B3:
                     return "Raspberry Pi 3 Model B";
+                case Model.B3rev13:
+                    return "Raspberry Pi 3 Model B Plus Rev 1.3";
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(model));

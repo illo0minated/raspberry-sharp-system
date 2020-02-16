@@ -208,6 +208,8 @@ namespace Raspberry.System.NetStandard
 
                 case 0x2082:
                     return Model.B3;
+                case 0x20d3:
+                    return Model.B3rev13;
 
                 default:
                     return Model.Unknown;
