@@ -1,4 +1,4 @@
-namespace Raspberry
+namespace Raspberry.System.NetStandard
 {
     /// <summary>
     /// The Raspberry Pi processor.

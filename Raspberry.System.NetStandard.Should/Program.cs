@@ -1,13 +1,12 @@
 ﻿using System;
-using Raspberry;
 
-namespace Test.Board
+namespace Raspberry.System.NetStandard.Should
 {
-    class Program
+    public class Program
     {
-        static void Main()
+        public static void Main(string[] args)
         {
-            var board = Raspberry.Board.Current;
+            var board = Board.Current;
 
             if (!board.IsRaspberryPi)
                 Console.WriteLine("System is not a Raspberry Pi");

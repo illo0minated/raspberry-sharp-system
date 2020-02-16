@@ -1,10 +1,9 @@
 using System;
-using System.ComponentModel;
 
-namespace Raspberry
+namespace Raspberry.System.NetStandard
 {
     /// <summary>
-    /// The Rasperry Pi model.
+    /// The Raspberry Pi model.
     /// </summary>
     public enum Model
     {
@@ -95,7 +94,7 @@ namespace Raspberry
                     return "Raspberry Pi 3 Model B";
 
                 default:
-                    throw new ArgumentOutOfRangeException("model");
+                    throw new ArgumentOutOfRangeException(nameof(model));
             }
         }
     }

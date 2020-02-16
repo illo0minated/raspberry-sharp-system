@@ -1,10 +1,7 @@
-#region References
-
 using System;
+using SystemTimer = System.Threading.Timer;
 
-#endregion
-
-namespace Raspberry.Timers
+namespace Raspberry.System.NetStandard.Timers
 {
     /// <summary>
     /// Represents a timer.
@@ -13,11 +10,11 @@ namespace Raspberry.Timers
     {
         #region Fields
 
-        private TimeSpan interval;
-        private Action action;
+        private TimeSpan _interval;
+        private Action _action;
 
-        private bool isStarted;
-        private System.Threading.Timer timer;
+        private bool _isStarted;
+        private SystemTimer _timer;
 
         #endregion
 
@@ -31,11 +28,11 @@ namespace Raspberry.Timers
         /// </value>
         public TimeSpan Interval
         {
-            get { return interval; }
+            get => _interval;
             set
             {
-                interval = value;
-                if (isStarted)
+                _interval = value;
+                if (_isStarted)
                     Start(TimeSpan.Zero);
             }
         }
@@ -48,13 +45,13 @@ namespace Raspberry.Timers
         /// </value>
         public Action Action
         {
-            get { return action; }
+            get => _action;
             set
             {
                 if (value == null)
                     Stop();
 
-                action = value;
+                _action = value;
             }
         }
 
@@ -70,10 +67,10 @@ namespace Raspberry.Timers
         {
             lock (this)
             {
-                if (!isStarted && interval.TotalMilliseconds >= 1)
+                if (!_isStarted && _interval.TotalMilliseconds >= 1)
                 {
-                    isStarted = true;
-                    timer = new System.Threading.Timer(OnElapsed, null, startDelay, interval);
+                    _isStarted = true;
+                    _timer = new SystemTimer(OnElapsed, null, startDelay, _interval);
                 }
                 else
                     Stop();
@@ -87,11 +84,11 @@ namespace Raspberry.Timers
         {
             lock (this)
             {
-                if (isStarted)
+                if (_isStarted)
                 {
-                    isStarted = false;
-                    timer.Dispose();
-                    timer = null;
+                    _isStarted = false;
+                    _timer.Dispose();
+                    _timer = null;
                 }
             }
         }

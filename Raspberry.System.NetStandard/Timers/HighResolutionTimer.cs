@@ -1,12 +1,8 @@
-#region References
-
 using System;
 using System.Linq;
 using System.Threading;
 
-#endregion
-
-namespace Raspberry.Timers
+namespace Raspberry.System.NetStandard.Timers
 {
     /// <summary>
     /// Represents a high-resolution timer.
@@ -15,13 +11,13 @@ namespace Raspberry.Timers
     {
         #region Fields
 
-        private TimeSpan delay;
-        private TimeSpan interval;
-        private Action action;
+        private TimeSpan _delay;
+        private TimeSpan _interval;
+        private Action _action;
 
-        private Thread thread;
+        private Thread _thread;
 
-        private static readonly int nanoSleepOffset = Calibrate();
+        private static readonly int NanoSleepOffset = Calibrate();
 
         #endregion
 
@@ -48,13 +44,15 @@ namespace Raspberry.Timers
         /// </value>
         public TimeSpan Interval
         {
-            get { return interval; }
+            get => _interval;
             set
             {
+                // ReSharper disable once PossibleLossOfFraction
+                // Calculation more understandable than actual constant value
                 if (value.TotalMilliseconds > uint.MaxValue/1000)
-                    throw new ArgumentOutOfRangeException("value", interval, "Interval must be lower than or equal to uint.MaxValue / 1000");
+                    throw new ArgumentOutOfRangeException(nameof(value), _interval, "Interval must be lower than or equal to uint.MaxValue / 1000");
 
-                interval = value;
+                _interval = value;
             }
         }
 
@@ -66,13 +64,13 @@ namespace Raspberry.Timers
         /// </value>
         public Action Action
         {
-            get { return action; }
+            get => _action;
             set
             {
                 if (value == null)
                     Stop();
 
-                action = value;
+                _action = value;
             }
         }
 
@@ -105,7 +103,7 @@ namespace Raspberry.Timers
 
                 // Use nanosleep if interval is higher than 450µs
                 t1.tv_sec = (IntPtr)0;
-                t1.tv_nsec = (IntPtr)((long) (millisecondDelay * 1000000) - nanoSleepOffset);
+                t1.tv_nsec = (IntPtr)((long) (millisecondDelay * 1000000) - NanoSleepOffset);
 
                 Interop.nanosleep(ref t1, ref t2);
             }
@@ -126,17 +124,19 @@ namespace Raspberry.Timers
         /// <param name="startDelay">The delay before the first occurence, in milliseconds.</param>
         public void Start(TimeSpan startDelay)
         {
-            if (startDelay.TotalMilliseconds > uint.MaxValue/1000)
-                throw new ArgumentOutOfRangeException("startDelay", startDelay, "Delay must be lower than or equal to uint.MaxValue / 1000");
+            if (startDelay.TotalMilliseconds > uint.MaxValue / 1000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(startDelay), startDelay, "Delay must be lower than or equal to uint.MaxValue / 1000");
+            }
 
             lock (this)
             {
-                if (thread != null) 
+                if (_thread != null) 
                     return;
                 
-                delay = startDelay;
-                thread = new Thread(ThreadProcess);
-                thread.Start();
+                _delay = startDelay;
+                _thread = new Thread(ThreadProcess);
+                _thread.Start();
             }
         }
 
@@ -147,12 +147,12 @@ namespace Raspberry.Timers
         {
             lock (this)
             {
-                if (thread == null) 
+                if (_thread == null) 
                     return;
 
-                if (thread != Thread.CurrentThread)
-                    thread.Abort();
-                thread = null;
+                if (_thread != Thread.CurrentThread)
+                    _thread.Abort();
+                _thread = null;
             }
         }
 
@@ -184,13 +184,13 @@ namespace Raspberry.Timers
 
         private void ThreadProcess()
         {
-            var thisThread = thread;
+            var thisThread = _thread;
 
-            Sleep(delay);
-            while (thread == thisThread)
+            Sleep(_delay);
+            while (_thread == thisThread)
             {
                 (Action ?? NoOp)();
-                Sleep(interval);
+                Sleep(_interval);
             }
         }
 

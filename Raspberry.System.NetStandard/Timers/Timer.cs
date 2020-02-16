@@ -1,11 +1,7 @@
-#region References
-
 using System;
 using System.Threading;
 
-#endregion
-
-namespace Raspberry.Timers
+namespace Raspberry.System.NetStandard.Timers
 {
     /// <summary>
     /// Provides access to timing features.

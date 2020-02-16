@@ -1,10 +1,6 @@
-#region References
-
 using System;
 
-#endregion
-
-namespace Raspberry.Timers
+namespace Raspberry.System.NetStandard.Timers
 {
     /// <summary>
     /// Provides an interface for a timer.

@@ -1,9 +1,9 @@
-namespace Raspberry
+namespace Raspberry.System.NetStandard
 {
     /// <summary>
     /// The Raspberry Pi connector pinout revision.
     /// </summary>
-    public enum ConnectorPinout
+    public enum ConnectorPinOut
     {
         /// <summary>
         /// Connector pinout is unknown.

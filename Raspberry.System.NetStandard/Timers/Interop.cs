@@ -1,11 +1,7 @@
-#region References
-
 using System;
 using System.Runtime.InteropServices;
 
-#endregion
-
-namespace Raspberry.Timers
+namespace Raspberry.System.NetStandard.Timers
 {
     internal static class Interop
     {

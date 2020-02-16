@@ -1,6 +1,6 @@
 using System;
 
-namespace Raspberry.Timers
+namespace Raspberry.System.NetStandard.Timers
 {
     /// <summary>
     /// Provides utilities for <see cref="TimeSpan"/>.

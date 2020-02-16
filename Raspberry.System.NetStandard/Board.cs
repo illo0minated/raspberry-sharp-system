@@ -1,13 +1,9 @@
-#region References
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-#endregion
-
-namespace Raspberry
+namespace Raspberry.System.NetStandard
 {
     /// <summary>
     /// Represents the Raspberry Pi mainboard.
@@ -18,24 +14,20 @@ namespace Raspberry
     /// </remarks>
     public class Board
     {
-        #region Fields
-
-        private static readonly Lazy<Board> board = new Lazy<Board>(LoadBoard);
+        private static readonly Lazy<Board> _board = new Lazy<Board>(LoadBoard);
         
-        private readonly Dictionary<string, string> settings;
-        private readonly Lazy<Model> model;
-        private readonly Lazy<ConnectorPinout> connectorPinout;
-
-        #endregion
+        private readonly Dictionary<string, string> _settings;
+        private readonly Lazy<Model> _model;
+        private readonly Lazy<ConnectorPinOut> _connectorPinOut;
 
         #region Instance Management
 
         private Board(Dictionary<string, string> settings)
         {
-            model = new Lazy<Model>(LoadModel);
-            connectorPinout = new Lazy<ConnectorPinout>(LoadConnectorPinout);
+            _model = new Lazy<Model>(LoadModel);
+            _connectorPinOut = new Lazy<ConnectorPinOut>(LoadConnectorPinOut);
             
-            this.settings = settings;
+            this._settings = settings;
         }
 
         #endregion
@@ -45,10 +37,7 @@ namespace Raspberry
         /// <summary>
         /// Gets the current mainboard configuration.
         /// </summary>
-        public static Board Current
-        {
-            get { return board.Value; }
-        }
+        public static Board Current => _board.Value;
 
         /// <summary>
         /// Gets a value indicating whether this instance is a Raspberry Pi.
@@ -56,13 +45,7 @@ namespace Raspberry
         /// <value>
         /// 	<c>true</c> if this instance is a Raspberry Pi; otherwise, <c>false</c>.
         /// </value>
-        public bool IsRaspberryPi
-        {
-            get
-            {
-                return Processor != Processor.Unknown;
-            }
-        }
+        public bool IsRaspberryPi => Processor != Processor.Unknown;
 
         /// <summary>
         /// Gets the processor name.
@@ -70,14 +53,7 @@ namespace Raspberry
         /// <value>
         /// The name of the processor.
         /// </value>
-        public string ProcessorName
-        {
-            get
-            {
-                string hardware;
-                return settings.TryGetValue("Hardware", out hardware) ? hardware : null;
-            }
-        }
+        public string ProcessorName => _settings.TryGetValue("Hardware", out var hardware) ? hardware : null;
 
         /// <summary>
         /// Gets the processor.
@@ -85,14 +61,7 @@ namespace Raspberry
         /// <value>
         /// The processor.
         /// </value>
-        public Processor Processor
-        {
-            get
-            {
-                Processor processor;
-                return Enum.TryParse(ProcessorName, true, out processor) ? processor : Processor.Unknown;
-            }
-        }
+        public Processor Processor => Enum.TryParse(ProcessorName, true, out Processor processor) ? processor : Processor.Unknown;
 
         /// <summary>
         /// Gets the board firmware version.
@@ -101,12 +70,10 @@ namespace Raspberry
         {
             get
             {
-                string revision;
-                int firmware;
-                if (settings.TryGetValue("Revision", out revision) 
-                    && !string.IsNullOrEmpty(revision) 
-                    && int.TryParse(revision, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out firmware))
+                if (_settings.TryGetValue("Revision", out var revision) && !string.IsNullOrEmpty(revision) && int.TryParse(revision, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var firmware))
+                {
                     return firmware;
+                }
 
                 return 0;
             }
@@ -117,11 +84,11 @@ namespace Raspberry
         /// </summary>
         public string SerialNumber
         {
-            get { 
-                string serial;
-                if (settings.TryGetValue("Serial", out serial) 
-                    && !string.IsNullOrEmpty(serial))
+            get {
+                if (_settings.TryGetValue("Serial", out var serial) && !string.IsNullOrEmpty(serial))
+                {
                     return serial;
+                }
 
                 return null;
             }
@@ -148,10 +115,7 @@ namespace Raspberry
         /// <value>
         /// The model.
         /// </value>
-        public Model Model
-        {
-            get { return model.Value; }
-        }
+        public Model Model => _model.Value;
 
         /// <summary>
         /// Gets the connector revision.
@@ -160,10 +124,7 @@ namespace Raspberry
         /// The connector revision.
         /// </value>
         /// <remarks>See <see cref="http://raspi.tv/2014/rpi-gpio-quick-reference-updated-for-raspberry-pi-b"/> for more information.</remarks>
-        public ConnectorPinout ConnectorPinout
-        {
-            get { return connectorPinout.Value; }
-        }
+        public ConnectorPinOut ConnectorPinOut => _connectorPinOut.Value;
 
         #endregion
 
@@ -193,7 +154,9 @@ namespace Raspberry
                         settings.Add(key + suffix, val);
                     }
                     else
+                    {
                         suffix = "";
+                    }
                 }
 
                 return new Board(settings);
@@ -251,16 +214,16 @@ namespace Raspberry
             }
         }
 
-        private ConnectorPinout LoadConnectorPinout()
+        private ConnectorPinOut LoadConnectorPinOut()
         {
             switch (Model)
             {
                 case Model.BRev1:
-                    return ConnectorPinout.Rev1;
+                    return ConnectorPinOut.Rev1;
 
                 case Model.BRev2:
                 case Model.A:
-                    return ConnectorPinout.Rev2;
+                    return ConnectorPinOut.Rev2;
 
                 case Model.BPlus:
                 case Model.ComputeModule:
@@ -268,10 +231,10 @@ namespace Raspberry
                 case Model.B2:
                 case Model.Zero:
                 case Model.B3:
-                    return ConnectorPinout.Plus;
+                    return ConnectorPinOut.Plus;
 
                 default:
-                    return ConnectorPinout.Unknown;
+                    return ConnectorPinOut.Unknown;
             }
         }
 
